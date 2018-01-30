@@ -1,0 +1,16 @@
+language: java
+jdk:
+  - oraclejdk8
+
+sudo: false
+install: true
+
+script:
+  - cd webapp
+  - ./gradlew war
+
+notifications:
+  email:
+    recipients:
+      - liu.junyu@husky.neu.edu
+	
