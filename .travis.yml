@@ -1,16 +1,16 @@
-language:java
+language: java
 jdk:
   - openjdk8
  
- sudo: false
- install: true
+sudo: false
+install: true
  
- script:
+script:
   - cd webapp
   - ./gradlew war
   
- notifications:
-  email:
-    recipients:
-    - huhudeni@gmail.com
-    - hu.ziy@husky.neu.edu
+notifications:
+ email:
+   recipients:
+     - huhudeni@gmail.com
+     - hu.ziy@husky.neu.edu
