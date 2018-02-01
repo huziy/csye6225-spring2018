@@ -1,0 +1,47 @@
+{
+   "Type" : "AWS::EC2::VPC",
+   "Properties" : {
+      "CidrBlock" : "10.0.0.0/16",
+      "EnableDnsSupport" : "false",
+      "EnableDnsHostnames" : "false",
+      "InstanceTenancy" : "dedicated",
+      "Tags" : [ "key" = "Name", "Value" = "Liy-csye6225-vpc" ]
+   }
+} 
+{
+	"Type" : "AWS::EC2::InternetGateway",
+         "Properties" : {
+            "Tags" : [ {"Key" : "Name", "Value" : "Liy-csye6225-InternetGateway"}]
+         }
+}
+{	
+	"AttachGateway" : {
+   "Type" : "AWS::EC2::VPCGatewayAttachment",
+   "Properties" : {
+      "VpcId" : { "Ref" : "VPC" },
+      "InternetGatewayId" : { "Ref" : "Liy-csye6225-InternetGateway" }
+		}
+	}
+}
+
+{
+	"myRouteTable" : {
+         "Type" : "AWS::EC2::RouteTable",
+         "Properties" : {
+            "VpcId" : { "Ref" : "Liy-csye6225-vpc" },
+            "Tags" : [ { "Key" : "Name", "Value" : "Liy-csye6225-RouteTable" } ]
+         }
+      }
+}
+
+{
+	"myRoute" : {
+         "Type" : "AWS::EC2::Route",
+         "DependsOn" : "GatewayToInternet",
+         "Properties" : {
+            "RouteTableId" : { "Ref" : "Liy-csye6225-RouteTable" },
+            "DestinationCidrBlock" : "0.0.0.0/0",
+            "GatewayId" : { "Ref" : "Liy-csye6225-InternetGateway" }
+         }
+}
+
