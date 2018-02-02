@@ -9,6 +9,7 @@ Install Java 8. Install and setup git. Create Github and TravisCI accounts. Inst
 Create a GitHub repository.
 
 Build and Deploy instructions for web application
+
 1.controller serves as presentation function
 2.entity accomplishes the convert between code and database
 3.repository deals with data
