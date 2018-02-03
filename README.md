@@ -23,5 +23,5 @@ Instructions to run unit, integration and/or load tests.
 5.store password
 6.be maintained to highest standards using unit and integration tests
 
-Link to TravisCI build for the project: https://travis-ci.com/davidcruise/csye6225-spring2018
+Link to TravisCI build for the project: https://travis-ci.com/davidcruise/csye6225-spring2018  
 
