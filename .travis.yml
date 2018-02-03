@@ -7,7 +7,7 @@ install: true
 
 script:
   - cd webapp
-  - ./gradlew war
+  - ./gradlew build
 
 notifications:
   email:
