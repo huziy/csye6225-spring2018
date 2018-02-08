@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+
+    <title>Login</title>
+</head>
+<body>
+<form action="/user/loginSuccessful" method="post">
+
+    <input name="username" id="inputEmail"  placeholder="Email address" required="" autofocus="" type="email" />
+    <input name="password" id="inputPasswor" placeholder="Password" required="" type="password" />
+    <input type="hidden" name="username" value="" />
+    <button  type="submit">Login</button>
+
+</form>
+<a href="/user/register">Register</a>
+</body>
+</html>
