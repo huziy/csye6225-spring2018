@@ -9,6 +9,8 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
 import java.util.Date;
 
 @Controller
@@ -18,7 +20,7 @@ public class IndexController {
 
   @RequestMapping(value = "/", method = RequestMethod.GET, produces = "application/json")
   @ResponseBody
-  public String welcome() {
+  public ModelAndView welcome() {
 
     JsonObject jsonObject = new JsonObject();
 
@@ -29,7 +31,10 @@ public class IndexController {
       jsonObject.addProperty("message", "you are logged in. current time is " + new Date().toString());
     }
 
-    return jsonObject.toString();
+    ModelAndView mav = new ModelAndView();
+    mav.setViewName("login");
+    return mav;
+    //return jsonObject.toString();
   }
 
 
