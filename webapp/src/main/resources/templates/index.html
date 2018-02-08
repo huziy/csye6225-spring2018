@@ -2,6 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <div th:replace="fragments/header :: header"/>
 <body>
+
+
 <div th:replace="fragments/navigation :: navigation"/>
 
 
@@ -10,6 +12,12 @@
             <p>
                 Welcome to CSYE 6225 Spring 2018 Semester!!!
             </p>
+
+    <a href="/user/logout">Logout</a>
+    <p>current time:</p><div id="time">
+    <script>document.getElementById('time').innerHTML=new Date().toLocaleString()+new Date().getDay();setInterval("document.getElementById('time').innerHTML=new Date().toLocaleString()+new Date().getDay();",1000);</script>
+</div>
+    <form></form>
     
 </div>
 <!-- /.container -->
