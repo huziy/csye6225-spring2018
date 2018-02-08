@@ -12,4 +12,4 @@ script:
 notifications:
   email:
     recipients:
-      - liu.junyu@husky.neu.edu
+      - hu.ziy@husky.neu.edu
