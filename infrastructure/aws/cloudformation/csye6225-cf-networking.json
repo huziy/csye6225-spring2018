@@ -1,71 +1,98 @@
 {
-   "AWSTemplateFormatVersion" : "2010-09-09",
-   "Resources" : {
-      "VPC": {
-         "Type": "AWS::EC2::VPC",
-         "Properties": {
-            "CidrBlock": "10.0.0.0/16",
-            "Tags": [{
-               "Key": "Application",
-               "Value": {
-                  "Ref": "AWS::StackId"
-               }
-            }]
-         }
-      },
-
-      "InternetGateway": {
-         "Type": "AWS::EC2::InternetGateway",
-         "Properties": {
-            "Tags": [{
-               "Key": "Application",
-               "Value": {
-                  "Ref": "AWS::StackId"
-               }
-            }]
-         }
-      },
-
-     "AttachGateway": {
-         "Type": "AWS::EC2::VPCGatewayAttachment",
-         "Properties": {
-            "VpcId": {
-               "Ref": "VPC"
-            },
-            "InternetGatewayId": {
-               "Ref": "InternetGateway"
+    "Resources" : {
+    "HLLcsye6225vpc" : {
+        "Type" : "AWS::EC2::VPC",
+        "Properties" : {
+           "CidrBlock" : {
+              "Fn::FindInMap" : [
+                 "SubnetConfig",
+                 "VPC",
+                 "CIDR"
+              ]
+           },
+           "Tags" : [
+            {
+              "Key" : "Name",
+              "Value" : {"Ref":"vpcName"}
             }
-         }
-      },
-
-     "RouteTable": {
-            "Type": "AWS::EC2::RouteTable",
-            "Properties": {
-               "VpcId": {
-                  "Ref": "VPC"
-               },
-               "Tags": [{
-                  "Key": "Application",
-                  "Value": {
-                     "Ref": "AWS::StackId"
-                  }
-               }]
+          ]
+        }
+    },
+    "InternetGateway" : {
+        "Type" : "AWS::EC2::InternetGateway",
+        "Properties" : {
+            "Tags" : [
+                {
+                  "Key" : "Name",
+                  "Value" : {"Ref":"gatewayName"}
+                }
+            ]
+        }
+    },
+    "AttachGateway" : {
+        "Type" : "AWS::EC2::VPCGatewayAttachment",
+        "Properties" : {
+           "VpcId" : {
+              "Ref" : "HLLcsye6225vpc"
+           },
+           "InternetGatewayId" : {
+              "Ref" : "InternetGateway"
+           }
+        }
+    },
+    "PublicRouteTable" : {
+        "Type" : "AWS::EC2::RouteTable",
+        "Properties" : {
+           "VpcId" : {
+              "Ref" : "HLLcsye6225vpc"
+           },
+           "Tags" : [
+            {
+              "Key" : "Name",
+              "Value" : {"Ref":"routeTableName"}
             }
-         },
+        ]
+        }
+    },
+    "PublicRoute" : {
+        "DependsOn" : "AttachGateway",
+        "Type" : "AWS::EC2::Route",
+        "Properties" : {
+           "GatewayId" : {
+              "Ref" : "InternetGateway"
+           },
+           "DestinationCidrBlock" : "0.0.0.0/0",
+           "RouteTableId" : {
+              "Ref" : "PublicRouteTable"
+           }
+        }
+    }
 
-   "Route": {
-      "Type": "AWS::EC2::Route",
-      "DependsOn": "AttachGateway",
-      "Properties": {
-         "RouteTableId": {
-            "Ref": "RouteTable"
-         },
-         "DestinationCidrBlock": "0.0.0.0/0",
-         "GatewayId": {
-            "Ref": "InternetGateway"
-         }
-      }
-   }
-      
-   }
-} 
+    },
+    "Mappings" : {
+        "SubnetConfig" : {
+           "Public" : {
+              "CIDR" : "10.42.0.0/24"
+           },
+           "VPC" : {
+              "CIDR" : "10.42.0.0/16"
+           }
+        },
+        "AWSRegionArch2AMI" : {
+           "us-east-1" : {
+              "AMI" : "ami-864d84ee"
+           }
+        }
+     },
+     "Parameters" : {
+        "vpcName" : {
+            "Type" : "String"
+        },
+        "gatewayName" : {
+            "Type" : "String"
+        },
+        "routeTableName" : {
+            "Type" : "String"
+        }
+     }
+}
