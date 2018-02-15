@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+
+    <title>Login</title>
+</head>
+<body>
+
+<form class="panel" action="/user/showprofile" method="GET">
+    <input class="form-control" type="text" id="username" name="username" placeholder="search profile"><br/>
+    <button class="btn btn-lg btn-primary btn-block" type="submit" onclick="window.location.href='/user/showprofile'">Search</button>
+</form>
+
+<form action="/user/loginSuccessful" method="post">
+
+    <input name="username" id="inputEmail"  placeholder="Email address" required="" autofocus="" type="email" />
+    <input name="password" id="inputPasswor" placeholder="Password" required="" type="password" />
+    <input type="hidden" name="username" value="" />
+    <button  type="submit">Login</button>
+
+</form>
+<a href="/user/register">Register</a>
+</body>
+</html>
