@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Enter Your Stack Name:"
+echo "Enter your stack name"
 read stackname
 
 instanceName="$stackname-csye6225-instance"
