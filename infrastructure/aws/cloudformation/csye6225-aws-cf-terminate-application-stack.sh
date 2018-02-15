@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Enter your stack name"
+echo "Enter Your Stack Name:"
 read stackname
 
 aws cloudformation delete-stack --stack-name ${stackname}&&
