@@ -13,7 +13,8 @@ public class User {
     private long id;
     private String email;
     private String password;
-
+    private String photo;
+    private String aboutMe;
 
 
     public User(){
@@ -40,5 +41,13 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public String getPhoto(){return photo;}
+
+    public void setPhoto(String photo){this.photo=photo;}
+
+    public String getAboutMe(){return aboutMe;}
+
+    public void setAboutMe(String aboutMe){this.aboutMe=aboutMe;}
 
 }
