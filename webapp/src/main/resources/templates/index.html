@@ -1,7 +1,13 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <div th:replace="fragments/header :: header"/>
+<head>
+
+</head>
+
 <body>
+
+
 <div th:replace="fragments/navigation :: navigation"/>
 
 
@@ -10,6 +16,28 @@
             <p>
                 Welcome to CSYE 6225 Spring 2018 Semester!!!
             </p>
+
+
+    <a href="/user/logout">Logout</a>
+    <p>current time:</p><div id="time">
+    <script>document.getElementById('time').innerHTML=new Date().toLocaleString()+new Date().getDay();setInterval("document.getElementById('time').innerHTML=new Date().toLocaleString()+new Date().getDay();",1000);</script>
+</div>
+
+    <form action="/user/loginSuccessful" method="post">
+
+
+
+        <img width="200" height="200" alt="No Picture" src=${picturepath}>
+        <form class="panel" action="/user/uploadpicture" method="POST">
+            <input class="form-control" type="file" id="profilepicture" name="profilepicture" >
+            <button class="btn btn-lg btn-primary btn-block" type="submit" onclick="return checkFileType()">Upload</button>
+        </form>
+        <button class="btn btn-lg btn-primary btn-block" type="submit" onclick="window.location.href='/user/deletepicture'">Delete</button>
+        <form class="panel" action="/user/uploadaboutme" method="POST">
+            <input class="form-control" type="text" id="aboutme" name="aboutme" maxlength="140" value=${aboutMe} >
+            <button class="btn btn-lg btn-primary btn-block" type="submit" onclick="window.location.href='/user/uploadaboutme'">Upload</button>
+        </form>
+    </form>
     
 </div>
 <!-- /.container -->
