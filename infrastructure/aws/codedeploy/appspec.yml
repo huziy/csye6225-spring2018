@@ -1,0 +1,20 @@
+language: java
+jdk:
+  - openjdk8
+
+sudo: false
+install: true
+
+branches:
+  only:
+  - travis
+
+script:
+  - pwd
+  - cd webapp
+  - ./gradlew war
+  - cd build/libs
+  - pwd
+  - cd ../../..
+  - pwd
+  - ls -al
