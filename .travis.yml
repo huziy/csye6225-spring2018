@@ -6,6 +6,8 @@ install: true
 before_script:
 - chmod +x gradlew
 script:
+- pwd
+- cd webapp
 - "./gradlew war"
 - gradle -Dtest.single=DemoApplicationTests test
 after_success:
