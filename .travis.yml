@@ -9,7 +9,6 @@ script:
 - pwd
 - cd webapp
 - "./gradlew war"
-- gradle -Dtest.single=DemoApplicationTests test
 after_success:
 - mkdir codedeploy
 - zip -r csye6225-web-app-${TRAVIS_JOB_NUMBER}.zip build/libs/ROOT.war appspec.yml restartTomcat.sh
