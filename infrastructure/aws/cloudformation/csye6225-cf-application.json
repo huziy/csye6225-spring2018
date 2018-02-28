@@ -7,11 +7,37 @@
           "Properties" : {
              "ImageId" : "ami-66506c1c",
              "InstanceType" : "t2.micro",
+	     "KeyName" : "YLI",
+	     "SubnetId" : {"Ref" : "SubnetId"},
+	     "SecurityGroupIds" : [{"Ref" : "WebPolicy"}],
              "DisableApiTermination" : "false",
+	     "IamInstanceProfile" : {"Ref":"ec2instanceprofile"},
              "InstanceInitiatedShutdownBehavior" : "stop",
+	     "UserData": {
+          	"Fn::Base64": {
+            	"Fn::Join": [
+              	"",
+              [
+                "#!/bin/bash -xe ",
+                "sudo apt-get update",
+                "sudo apt-get install openjdk-8-jdk -y",
+                "sudo apt-get install ruby -y ",
+                "sudo apt-get install wget -y ",
+                "sudo apt-get install python -y ",
+                "sudo apt-get update ",
+                "sudo wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install ",
+                "sudo chmod +x ./install ",
+                "sudo ./install auto ",
+                "sudo service codedeploy-agent start ",
+                "sudo apt-get install tomcat8 -y ",
+		"sudo service tomcat8 restart "
+              ]
+            ]
+          }
+        },
              "BlockDeviceMappings" : [
                 {
-                   "DeviceName" : "/dev/sdm",
+                   "DeviceName" : "/dev/sda1",
                    "Ebs" : {
                       "VolumeType" : "gp2",
                       "DeleteOnTermination" : "false",
@@ -23,10 +49,24 @@
                 {
                     "Key" : "Name",
                     "Value" : {"Ref":"InstanceName"}
-                }
+                },
+		{   
+		    "Key" : "deploy",
+		    "Value" : "deploy"
+		}
              ]
           }
        },
+
+       "ec2instanceprofile" : {
+	    "Type": "AWS::IAM::InstanceProfile",
+   	    "Properties": {
+      	        "Path": "/",
+                "Roles": ["CodeDeployEC2ServiceRole"],
+                "InstanceProfileName": "ec2profile"
+             }
+	},
+
       "myDynamoDBTable" : {
       "Type" : "AWS::DynamoDB::Table",
       "Properties" : {
@@ -49,8 +89,14 @@
         "TableName" : "csye6225"
       }
     },
+    "RecordServiceS3Bucket" : {
+	"Type" : "AWS::S3::Bucket",
+  	"Properties" : {
+	    "BucketName" : "s3.csye6225-spring2018-huziy.me"
+	 }
+     },
 
-   "MyDB" : {
+  "MyDB" : {
    "Type" : "AWS::RDS::DBInstance",
    "Properties" : {
       "DBName" : "csye6225",
@@ -61,18 +107,32 @@
       "DBInstanceIdentifier" : "csye6225-spring2018",
       "MasterUsername" : "csye6225master",
       "MasterUserPassword" : "csye6225password",
+      "DBSubnetGroupName" : {"Ref":"DBSubnetGroup"},
+      "VPCSecurityGroups" : [{
+	   "Ref" : "DBPolicy"
+	}],
       "PubliclyAccessible" : "false",
       "Tags" : [ { "Key" : "Name", "Value" : "csye6225" } ],
       "AllocatedStorage" : "10"
    }
-}         
+}
 
     },
     "Parameters" : {
         "InstanceName" : {
             "Type" : "String"
-        }
+        },
+	"SubnetId" : {
+	    "Type" : "String"
+	},
+	"WebPolicy" : {
+	    "Type" : "String"
+	},
+	"DBPolicy" : {
+	    "Type" : "String"
+	},
+	"DBSubnetGroup" : {
+	    "Type" : "String"
+	}
     }
  }        
- 
- 
