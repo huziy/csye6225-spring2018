@@ -25,7 +25,7 @@
 
         <!-- th:src="@{${'/home/huziy/Downloads/'+picturePath}}" -->
 
-        <img width="200" height="200" th:src="*{'data:'+${userProfile}+';base64'}"  />
+        <img width="200" height="200" th:src="*{'data:'+${userProfile}}"  />
 
         <form th:action="@{/user/uploadpicture}" method="POST" >
             <input  type="file" id="profilepicture" name="profilepicture" />
