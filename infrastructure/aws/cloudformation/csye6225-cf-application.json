@@ -18,19 +18,37 @@
             	"Fn::Join": [
               	"",
               [
-                "#!/bin/bash -xe ",
-                "sudo apt-get update",
-                "sudo apt-get install openjdk-8-jdk -y",
-                "sudo apt-get install ruby -y ",
-                "sudo apt-get install wget -y ",
-                "sudo apt-get install python -y ",
-                "sudo apt-get update ",
-                "sudo wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install ",
-                "sudo chmod +x ./install ",
-                "sudo ./install auto ",
-                "sudo service codedeploy-agent start ",
-                "sudo apt-get install tomcat8 -y ",
-		"sudo service tomcat8 restart "
+                "#!/bin/bash -xe\n",
+                "sudo apt-get update\n",
+                "sudo apt-get install openjdk-8-jdk -y\n",
+                "sudo apt-get install ruby -y\n",
+                "sudo apt-get install wget -y\n",
+                "sudo apt-get install python -y\n",
+                "sudo apt-get update\n",
+                "sudo wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install\n",
+                "sudo chmod +x ./install\n",
+                "sudo ./install auto\n",
+                "sudo service codedeploy-agent start\n",
+                "sudo apt-get install tomcat8 -y\n",
+		"sudo mkdir /var/tempimage\n",
+		"sudo chown -R tomcat8 /var/tempimage\n",
+                "sudo echo \"JAVA_OPTS=\\\"\\${JAVA_OPTS} -Dspring.datasource.username=csye6225master -Dspring.datasource.password=csye6225password  -Dspring.profiles.active=aws\\\"\" >> /etc/default/tomcat8\n",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "echo 'JAVA_OPTS=\"${JAVA_OPTS} -Dspring.datasource.url=\\\"jdbc:mysql://",
+                      {
+                        "Fn::GetAtt": [
+                          "MyDB",
+                          "Endpoint.Address"
+                        ]
+                      },
+                      ":3306/csye6225\\\"\"' >> /etc/default/tomcat8\n"
+                    ]
+                  ]
+                },
+                "sudo service tomcat8 restart\n"
               ]
             ]
           }
@@ -92,7 +110,7 @@
     "RecordServiceS3Bucket" : {
 	"Type" : "AWS::S3::Bucket",
   	"Properties" : {
-	    "BucketName" : "s3.csye6225-spring2018-huziy.me"
+	    "BucketName" : "s3.csye6225-spring2018-liyuan.me"
 	 }
      },
 
@@ -136,3 +154,5 @@
 	}
     }
  }        
+ 
+ 
