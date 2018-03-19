@@ -2,6 +2,7 @@ package com.csye6225.spring2018.controller;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.S3ClientOptions;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
@@ -12,19 +13,14 @@ import com.csye6225.spring2018.constant.ApplicationConstant;
 import com.csye6225.spring2018.repository.UserRepository;
 import com.csye6225.spring2018.service.UserService;
 import com.csye6225.spring2018.security.BCryptPassword;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
-
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,17 +46,17 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    @RequestMapping(value = "/signin", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/signin", method = { RequestMethod.GET, RequestMethod.POST })
     public ModelAndView signIn() {
         return new ModelAndView("signin");
     }
 
-    @RequestMapping(value = "/signup", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/signup", method = { RequestMethod.GET, RequestMethod.POST })
     public ModelAndView signUp() {
         return new ModelAndView("signup");
     }
 
-    @RequestMapping(value = "/signinvalidate", method = {RequestMethod.POST})
+    @RequestMapping(value = "/signinvalidate", method = { RequestMethod.POST })
     public ModelAndView signInValidate(@Valid User user, BindingResult result, HttpServletRequest request,
                                        HttpServletResponse response, Model model, HttpSession session) throws IOException {
 
@@ -117,8 +113,7 @@ public class UserController {
             return mav;
         }
     }
-
-    @RequestMapping(value = "/signupvalidate", method = {RequestMethod.POST})
+    @RequestMapping(value = "/signupvalidate", method = { RequestMethod.POST })
     public ModelAndView signUpValidate(@Valid User user, BindingResult result, HttpServletRequest request,
                                        Model model) {
         if (result.hasErrors()) {
@@ -152,10 +147,11 @@ public class UserController {
 
         // s3
         final AmazonS3 s3 = awsConfiguration.amazonS3Client(awsConfiguration.basicAWSCredentials());
+        s3.setS3ClientOptions(S3ClientOptions.builder().setPathStyleAccess(true).disableChunkedEncoding().build());
         byte[] userProfile = null;
         try {
             s3.putObject(new PutObjectRequest(ApplicationConstant.bucketName, username,
-                    new File(ApplicationConstant.extractPrefixPath + request.getParameter("profilepicture"))));
+                   new File(ApplicationConstant.extractPrefixPath + request.getParameter("profilepicture"))));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -184,9 +180,9 @@ public class UserController {
                 break;
             }
         }
-//        String picturePath = s3.getUrl("s3.csye6225-spring2018-huziy.me", username).toString();
-//        user.setPicturePath(picturePath);
-//        userRepository.save(user);
+        String picturePath = s3.getUrl("s3.csye6225-spring2018-huziy.me", username).toString();
+        user.setPicturePath(picturePath);
+        userRepository.save(user);
         mav.addObject("user", username);
         mav.addObject("currentTime", new Date().toString());
         mav.addObject("userProfile", transUserProfile);
@@ -195,7 +191,7 @@ public class UserController {
         return mav;
     }
 
-    @RequestMapping(value = "/deletepicture", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/deletepicture", method = { RequestMethod.GET, RequestMethod.POST })
     public ModelAndView deleteProfilePicture(HttpSession session) {
         final String username = session.getAttribute("user").toString();
         if (username.isEmpty()) {
@@ -252,7 +248,7 @@ public class UserController {
         return mav;
     }
 
-    @RequestMapping(value = "/logout", method = {RequestMethod.GET})
+    @RequestMapping(value = "/logout", method = { RequestMethod.GET })
     public ModelAndView logOut(HttpServletRequest request, HttpServletResponse response) {
 
         HttpSession session = request.getSession();
