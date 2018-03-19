@@ -1,24 +1,18 @@
 #!/bin/bash
 
-
-VPC_ID=$(aws ec2 describe-vpcs --query "Vpcs[0].VpcId" --output text)&&
-echo $VPC_ID&&
-
-SUBNET_ID1=$(aws ec2 describe-subnets --filters "Name=vpc-id, Values=$VPC_ID" --query "Subnets[0].SubnetId" --output text)&&
-echo $SUBNET_ID1&&
-
-SUBNET_ID2=$(aws ec2 describe-subnets --filters "Name=vpc-id, Values=$VPC_ID" --query "Subnets[1].SubnetId" --output text)&&
-echo $SUBNET_ID2&&
-
-SUBNET_ID3=$(aws ec2 describe-subnets --filters "Name=vpc-id, Values=$VPC_ID" --query "Subnets[2].SubnetId" --output text)&&
-echo $SUBNET_ID3&&
-
-SUBNET_ID4=$(aws ec2 describe-subnets --filters "Name=vpc-id, Values=$VPC_ID" --query "Subnets[3].SubnetId" --output text)&&
-echo $SUBNET_ID4&&
-
 echo "Enter The Stack Name:"
 read stackname
 
-aws cloudformation create-stack --stack-name ${stackname} --template-body file://./csye6225-cf-ci-cd.json --parameters ParameterKey=ParamVpcID,ParameterValue=${VPC_ID} ParameterKey=ParamSubnetId1,ParameterValue=${SUBNET_ID1} ParameterKey=ParamSubnetId2,ParameterValue=${SUBNET_ID2} ParameterKey=ParamSubnetId3,ParameterValue=${SUBNET_ID3} ParameterKey=ParamSubnetId4,ParameterValue=${SUBNET_ID4} --capabilities CAPABILITY_NAMED_IAM&&
+
+vpcId=$(aws ec2 describe-vpcs --filters "Name=cidr-block-association.cidr-block,Values=10.0.0.0/16" --query "Vpcs[0].VpcId" --output text)
+echo $vpcId
+subnetId=$(aws ec2 describe-subnets --filters "Name=cidrBlock,Values=10.0.0.0/24" --query "Subnets[0].SubnetId" --output text)
+instanceName="$stackname-csye6225-instance"
+echo $subnetId
+
+
+aws cloudformation create-stack --template-body file://./csye6225-cf-ci-cd.json --stack-name ${stackname} --capabilities "CAPABILITY_NAMED_IAM" --parameters ParameterKey=InstanceName,ParameterValue=$instanceName ParameterKey=SubnetId,ParameterValue=$subnetId
+
+
 aws cloudformation wait stack-create-complete --stack-name ${stackname}
 echo done
