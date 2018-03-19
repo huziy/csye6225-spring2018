@@ -29,7 +29,7 @@
 
         <form th:action="@{/user/uploadpicture}" method="POST" >
             <input  type="file" id="profilepicture" name="profilepicture" />
-            <button type="submit" onclick="window.location.href='/user/uploadpicture'">Upload</button>
+            <button type="submit"  th:onclick="'checkFileType()'">Upload</button>
         </form>
         <button  type="submit" onclick="window.location.href='/user/deletepicture'">Delete</button>
         <form th:action="@{/user/uploadaboutme}" method="POST">
