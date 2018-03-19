@@ -38,7 +38,11 @@ idea {
 dependencies {
     // Spring Boot dependencies
 
+
     providedCompile "javax.servlet:javax.servlet-api:3.1.0"
+
+    compile('org.springframework.boot:spring-boot-starter-web','org.apache.tomcat.embed:tomcat-embed-jasper'
+            ,'javax.servlet:jstl')
 
     compile('org.springframework.boot:spring-boot-starter-actuator')
     compile('org.springframework.boot:spring-boot-actuator-docs')
@@ -59,6 +63,7 @@ dependencies {
     compile('com.google.code.gson:gson:+')
 
 
+
     dependencyManagement {
         imports {
             mavenBom 'com.amazonaws:aws-java-sdk-bom:1.11.228'
@@ -74,6 +79,9 @@ dependencies {
     runtime('mysql:mysql-connector-java')
 
     providedRuntime('org.springframework.boot:spring-boot-starter-tomcat')
+    providedRuntime("javax.servlet:jstl")
+    providedRuntime("org.apache.tomcat.embed:tomcat-embed-jasper")
+
 
     testCompile('io.rest-assured:rest-assured:3.0.3')
     testCompile('org.springframework.boot:spring-boot-starter-test')

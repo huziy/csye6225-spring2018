@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html lang="en"  xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://www.thymeleaf.org ">
+<html lang="en">
 <head>
-    <meta charset="UTF-8"/>
+    <meta charset="UTF-8">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <title>User Index</title>
     <script>
@@ -18,23 +17,20 @@
 
     </script>
 </head>
-<body>
+<body >
     <div>
-        <h1 th:text="${user}"></h1>
-        <h6 th:text="${currentTime}"></h6>
+        <h1>Hello ${user}</h1>
+        <h6 >${currentTime}</h6>
+        <img ><img width="200" height="200" alt="No Picture" src=data:image;base64 th:value="${userProfile}" ></h6>
 
-        <!-- th:src="@{${'/home/huziy/Downloads/'+picturePath}}" -->
-
-
-
-        <img width="200" height="200"  th:src="@{${'data:image;base64,'+userProfile}}"> </img>
-        <form th:action="@{/user/uploadpicture}" method="POST" >
-            <input  type="file" id="profilepicture" name="profilepicture" />
-            <button type="submit" th:onclick="'checkFileType()'">Upload</button>
+        th:action="@{/users/{action}(action=${action})}"
+        <form th:action="@{/user/uploadpicture}" method="POST">
+            <input  type="file" id="profilepicture" name="profilepicture" >
+            <button type="submit" onclick="return checkFileType()">Upload</button>
         </form>
         <button  type="submit" onclick="window.location.href='/user/deletepicture'">Delete</button>
-        <form th:action="@{/user/uploadaboutme}" method="POST">
-            <input  type="text" id="aboutme" name="aboutme" maxlength="140" th:value="${aboutMe}" />
+        <form action="/user/uploadaboutme" method="POST">
+            <input  type="text" id="aboutme" name="aboutme" maxlength="140" th:value="${aboutMe}" >
             <button  type="submit" onclick="window.location.href='/user/uploadaboutme'">Upload</button>
         </form>
         <button  type="submit" onclick="window.location.href='/user/logout'">logout</button>
