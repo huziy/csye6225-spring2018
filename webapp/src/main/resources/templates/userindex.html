@@ -28,10 +28,13 @@
 
 
         <img width="200" height="200"  th:src="@{${'data:image;base64,'+userProfile}}"> </img>
-        <form th:action="@{/user/uploadpicture}" method="POST" >
+
+
+        <form th:action="@{/user/uploadpicture}" method="POST" enctype="multipart/form-data">
             <input  type="file" id="profilepicture" name="profilepicture" />
             <button type="submit" th:onclick="'checkFileType()'">Upload</button>
         </form>
+
         <button  type="submit" onclick="window.location.href='/user/deletepicture'">Delete</button>
         <form th:action="@{/user/uploadaboutme}" method="POST">
             <input  type="text" id="aboutme" name="aboutme" maxlength="140" th:value="${aboutMe}" />
