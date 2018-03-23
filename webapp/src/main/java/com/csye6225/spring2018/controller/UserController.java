@@ -198,15 +198,15 @@ public class UserController {
         mav.addObject("aboutMe", loggedUser.getAboutMe());
 
         String envir = env.getProperty("profile");
-        if (envir.equals("default")) {
-            String profileApplicationPath =  PictureStoreUtility.pictureApplicationAbsolutePath + loggedUser.getProfile();
-            Files.delete(Paths.get(profileApplicationPath));
-            loggedUser.setProfile(null);
-            userService.save(loggedUser);
-            mav.setViewName("userindexlocal");
-            return mav;
+//         if (envir.equals("default")) {
+//             String profileApplicationPath =  PictureStoreUtility.pictureApplicationAbsolutePath + loggedUser.getProfile();
+//             Files.delete(Paths.get(profileApplicationPath));
+//             loggedUser.setProfile(null);
+//             userService.save(loggedUser);
+//             mav.setViewName("userindexlocal");
+//             return mav;
 
-        } else {
+//         } else {
             final AmazonS3 s3 = AWSDefaultConfiguration.getInstance();
             try {
                 s3.deleteObject(ApplicationConstant.bucket, loggedUser.getUsername());
@@ -217,7 +217,7 @@ public class UserController {
             mav.setViewName("userindex");
             return mav;
         }
-    }
+    //}
 
     @PostMapping(value = "/uploadaboutme")
     public ModelAndView uploadAboutMe(HttpSession session, HttpServletRequest request) {
@@ -237,11 +237,11 @@ public class UserController {
         mav.addObject("aboutMe", u.getAboutMe());
 
         String envir = env.getProperty("profile");
-        if(envir.equals("default")) {
-            mav.addObject("userProfile", PictureStoreUtility.pictureApplicationPath + u.getProfile());
-            mav.setViewName("userindexlocal");
-            return mav;
-        } else {
+//         if(envir.equals("default")) {
+//             mav.addObject("userProfile", PictureStoreUtility.pictureApplicationPath + u.getProfile());
+//             mav.setViewName("userindexlocal");
+//             return mav;
+//         } else {
             final AmazonS3 s3 = AWSDefaultConfiguration.getInstance();
             String profileData = null;
             try {
@@ -255,7 +255,7 @@ public class UserController {
             return mav;
         }
 
-    }
+   // }
 
     @GetMapping(value = "/showprofile")
     public ModelAndView showAboutme(@RequestParam("username") String username) {
