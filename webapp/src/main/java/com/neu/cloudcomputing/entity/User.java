@@ -1,11 +1,10 @@
-package com.csye6225.spring2018.entity;
-
+package com.neu.cloudcomputing.entity;
 
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotEmpty;
-
 import javax.persistence.*;
+//import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
+
 
 @Entity
 @Table(name = "user")
@@ -15,28 +14,23 @@ public class User {
     @Column(name = "id")
     private Long id;
 
-    //@NotEmpty(message = "Username is Empty")
-    //@Pattern(regexp = "^.+@.+$", message = "Invalid Email Address")
+   // @NotEmpty(message = "Username is Empty")
+   // @Pattern(regexp = "^.+@.+$", message = "Invalid Email Address")
     //@Length(min = 8, max = 25, message = "Invalid Email Address")
     @Column(name = "username")
     private String username;
 
-    //@NotEmpty(message = "Password is Empty")
-   // @Length(min = 2, message = "Password Length Less Than 2")
+   // @NotEmpty(message = "Password is Empty")
+   // @Length(min = 8, message = "Password Length Less Than 8")
     //@Pattern(regexp = "^[A-Za-z0-9^%&,;=?$@]+$", message = "Invalid Password")
     @Column(name = "password")
     private String password;
 
-    @Column(name = "picturePath")
-    private String picturePath;
+    private String profile;
 
-    @Column(name = "aboutMe")
     private String aboutMe;
 
-    public User() {
-    }
-
-    ;
+    public User() {};
 
     public User(String username) {
         this.username = username;
@@ -72,14 +66,6 @@ public class User {
         this.password = password;
     }
 
-    public String getPicturePath() {
-        return picturePath;
-    }
-
-    public void setPicturePath(String picturePath) {
-        this.picturePath = picturePath;
-    }
-
     public String getAboutMe() {
         return aboutMe;
     }
@@ -88,8 +74,17 @@ public class User {
         this.aboutMe = aboutMe;
     }
 
+    public String getProfile() {
+        return profile;
+    }
+
+    public void setProfile(String profile) {
+        this.profile = profile;
+    }
+
     @Override
     public String toString() {
-        return this.id + " " + this.username + " " + this.password;
+        return this.id  + " " + this.username + " " + this.password;
     }
+
 }

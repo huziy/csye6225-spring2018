@@ -61,6 +61,7 @@ dependencies {
     compile('com.google.guava:guava:+')
     compile('org.apache.httpcomponents:httpclient:+')
     compile('com.google.code.gson:gson:+')
+    compile('org.jadira.usertype:usertype.core:4.0.0.GA')
 
 
 
