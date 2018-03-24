@@ -24,7 +24,4 @@ public class PictureStoreUtility {
         fs.close();
         return newFile;
     }
-
-
-
 }

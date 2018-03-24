@@ -54,10 +54,6 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-security')
     compile ('org.springframework.boot:spring-boot-starter-thymeleaf')
 
-    compile ('org.springframework.boot:spring-boot-starter-tomcat')
-    
-
-
     compile('com.h2database:h2:+')
 
 
@@ -65,7 +61,6 @@ dependencies {
     compile('com.google.guava:guava:+')
     compile('org.apache.httpcomponents:httpclient:+')
     compile('com.google.code.gson:gson:+')
-    compile('org.jadira.usertype:usertype.core:4.0.0.GA')
 
 
 
