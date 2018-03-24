@@ -1,4 +1,4 @@
-package com.neu.cloudcomputing.Utility;
+package com.csye6225.spring2018.Utility;
 
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;

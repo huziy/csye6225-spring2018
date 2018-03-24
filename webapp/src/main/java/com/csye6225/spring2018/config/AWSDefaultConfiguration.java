@@ -1,4 +1,4 @@
-package com.neu.cloudcomputing.config;
+package com.csye6225.spring2018.config;
 
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;

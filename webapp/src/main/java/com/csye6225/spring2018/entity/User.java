@@ -1,8 +1,8 @@
-package com.neu.cloudcomputing.entity;
+package com.csye6225.spring2018.entity;
 
 import org.hibernate.validator.constraints.Length;
 import javax.persistence.*;
-//import javax.validation.constraints.NotEmpty;
+
 import javax.validation.constraints.Pattern;
 
 
@@ -14,14 +14,14 @@ public class User {
     @Column(name = "id")
     private Long id;
 
-   // @NotEmpty(message = "Username is Empty")
-   // @Pattern(regexp = "^.+@.+$", message = "Invalid Email Address")
-    //@Length(min = 8, max = 25, message = "Invalid Email Address")
+    //@NotEmpty(message = "Username is Empty")
+    @Pattern(regexp = "^.+@.+$", message = "Invalid Email Address")
+    @Length(min = 8, max = 25, message = "Invalid Email Address")
     @Column(name = "username")
     private String username;
 
    // @NotEmpty(message = "Password is Empty")
-   // @Length(min = 8, message = "Password Length Less Than 8")
+    @Length(min = 8, message = "Password Length Less Than 8")
     //@Pattern(regexp = "^[A-Za-z0-9^%&,;=?$@]+$", message = "Invalid Password")
     @Column(name = "password")
     private String password;

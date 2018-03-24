@@ -1,4 +1,4 @@
-package com.neu.cloudcomputing.Utility;
+package com.csye6225.spring2018.Utility;
 
 public class GeneralUtility {
 

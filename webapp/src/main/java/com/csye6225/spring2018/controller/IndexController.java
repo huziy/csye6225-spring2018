@@ -1,4 +1,4 @@
-package com.neu.cloudcomputing.controller;
+package com.csye6225.spring2018.controller;
 
 
 import org.springframework.stereotype.Controller;

@@ -1,6 +1,6 @@
-package com.neu.cloudcomputing.service;
+package com.csye6225.spring2018.service;
 
-import com.neu.cloudcomputing.entity.User;
+import com.csye6225.spring2018.entity.User;
 import org.springframework.stereotype.Service;
 
 public interface UserService {

@@ -1,14 +1,14 @@
-package com.neu.cloudcomputing;
+package com.csye6225.spring2018;
 
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
-//import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+
 
 public class ServletInitializer extends SpringBootServletInitializer {
 
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		return application.sources(CloudcomputingApplication.class);
+		return application.sources(SpringBootWebApplication.class);
 	}
 
 }

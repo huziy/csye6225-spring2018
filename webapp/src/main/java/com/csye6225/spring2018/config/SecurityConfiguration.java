@@ -1,4 +1,4 @@
-package com.neu.cloudcomputing.config;
+package com.csye6225.spring2018.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

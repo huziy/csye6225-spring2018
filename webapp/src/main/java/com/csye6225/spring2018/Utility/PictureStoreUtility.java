@@ -1,4 +1,4 @@
-package com.neu.cloudcomputing.Utility;
+package com.csye6225.spring2018.Utility;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -8,10 +8,10 @@ import java.nio.file.Files;
 
 public class PictureStoreUtility {
 
-    //public static final String pictureLocalPath = "/home/dongqi/Downloads/";
-    public static final String pictureLocalPath = "/var/tempimage/";
-    public static final String pictureApplicationPath = "/css/images/";
-    public static final String pictureApplicationAbsolutePath = "/home/liy/csye6225/dev/csye-6225/webapp/src/main/resources/images/";
+
+    public static final String pictureLocalPath = "/var/lib/tomcat8/webapps/ROOT/WEB-INF/classes/images/";
+    public static final String pictureApplicationPath = "/resources/images/";
+    public static final String pictureApplicationAbsolutePath = "/home/huziy/csye6225/dev/webapp/src/main/resources/images/";
 
 
     public static File convertFromMultipart(MultipartFile file) throws Exception {

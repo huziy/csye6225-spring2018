@@ -1,8 +1,8 @@
-package com.neu.cloudcomputing.service.impl;
+package com.csye6225.spring2018.service.impl;
 
-import com.neu.cloudcomputing.entity.User;
-import com.neu.cloudcomputing.repository.UserRepository;
-import com.neu.cloudcomputing.service.UserService;
+import com.csye6225.spring2018.entity.User;
+import com.csye6225.spring2018.repository.UserRepository;
+import com.csye6225.spring2018.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService{
                 .withMatcher("username", ExampleMatcher.GenericPropertyMatchers.startsWith())
                 .withIgnorePaths("id").withIgnorePaths("password");
         Example<User> u = Example.of(user, matcher);
-        User ur = userRepository.findOne(u);//.orElse(null);
+        User ur = userRepository.findOne(u);
         if (ur == null) return false;
         else return true;
     }
@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService{
                 .withMatcher("password", ExampleMatcher.GenericPropertyMatchers.startsWith())
                 .withIgnorePaths("id");
         Example<User> u = Example.of(user, matcher);
-        User ur = userRepository.findOne(u);//.orElse(null);
+        User ur = userRepository.findOne(u);
         if (ur == null) return false;
         else return true;
     }
@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService{
                 .withMatcher("username", ExampleMatcher.GenericPropertyMatchers.startsWith())
                 .withIgnorePaths("id").withIgnorePaths("password");
         Example<User> u = Example.of(user, matcher);
-        User ur = userRepository.findOne(u);//.get();
+        User ur = userRepository.findOne(u);
         return ur;
     }
 }
