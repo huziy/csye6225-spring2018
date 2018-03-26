@@ -132,7 +132,7 @@
 	"CodeDeployS3Bucket" : {
 	"Type" : "AWS::S3::Bucket",
   	"Properties" : {
-	    "BucketName" : "s3.csye6225-spring2018-codedeploy-liyuan.me"
+	    "BucketName" : "s3.csye6225-spring2018-codedeploy-liujunyu.me"
 	 }
      },
       "CodeDeployApplication" : {
