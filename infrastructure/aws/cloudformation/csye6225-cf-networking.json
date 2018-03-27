@@ -15,6 +15,17 @@
           ]
         }
     },
+    "PublicSubnet" : {
+        "Type" : "AWS::EC2::Subnet",
+        "Properties" : {
+           "VpcId" : {
+              "Ref" : "HLLcsye6225vpc"
+           },
+           "CidrBlock" : "10.0.0.0/24",
+	   "MapPublicIpOnLaunch" : "true",
+	   "AvailabilityZone" : "us-east-1a"
+        }
+    },
 "WebServerSecurityGroup": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
