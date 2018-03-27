@@ -1,142 +1,223 @@
+
 package com.csye6225.spring2018.controller;
 
-
-import com.csye6225.spring2018.security.BCryptPasswordEncoderBean;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
+import com.csye6225.spring2018.Utility.BCryptUtility;
+import com.csye6225.spring2018.Utility.Base64Utility;
+import com.csye6225.spring2018.Utility.PictureStoreUtility;
+import com.csye6225.spring2018.config.AWSDefaultConfiguration;
+import com.csye6225.spring2018.constant.ApplicationConstant;
 import com.csye6225.spring2018.entity.User;
-import com.csye6225.spring2018.repository.UserRepository;
+import com.csye6225.spring2018.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
-import java.io.IOException;
 
-@RestController
-@RequestMapping("/user")
+@Controller
+@RequestMapping(value = "/user")
 public class UserController {
 
+    @Autowired
+    private UserService userService;
 
     @Autowired
-    private UserRepository userRepository;
-    @GetMapping(path="/register")
-    public @ResponseBody ModelAndView register1 (HttpServletRequest request){
-        ModelAndView mav = new ModelAndView();
-        mav.setViewName("register");
-        return mav;
+    private Environment env;
+
+    @GetMapping(value = "/signin")
+    public ModelAndView signIn() {
+        return new ModelAndView("signin");
     }
 
-    @PostMapping(path="/register")
-    public @ResponseBody ModelAndView register (HttpServletRequest request,Model model) {
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        boolean flag = false;
-        List<User> userList = (List<User>) userRepository.findAll();
-        ModelAndView mav = new ModelAndView();
+    @GetMapping(value = "/signup")
+    public ModelAndView signup() {
+        return new ModelAndView("signup");
+    }
 
-        for (User a : userList) {
-            System.out.println(a.getEmail()+""+a.getPassword());
-            if (a.getEmail().equals(username)) {
-                flag = true;
-                break;
-            }
+    @PostMapping(value = "/signupvalidate")
+    public ModelAndView signUpValidate(@Valid User user, BindingResult result, HttpServletRequest request, Model model) {
+
+        if (result.hasErrors()) {
+            List<ObjectError> errors = result.getAllErrors();
+            String eMessage = errors.stream().map(e -> e.getDefaultMessage()).findFirst().get();
+            return new ModelAndView("errorpage", "errorMessage", eMessage);
         }
 
-        if (flag) {
-            mav.setViewName("registerError");
-            return mav;
-        } else {
-
-            User newuser = new User();
-            BCryptPasswordEncoderBean bCryptPasswordEncoder = new BCryptPasswordEncoderBean();
-
-
-            String passwordSafe = bCryptPasswordEncoder.bCryptPasswordEncoder().encode(password);
-            newuser.setEmail(username);
-            newuser.setPassword(passwordSafe);
-            userRepository.save(newuser);
-            mav.setViewName("login");
-            return mav;
+        String password = user.getPassword();
+        String enPassword = BCrypt.hashpw(password, BCryptUtility.SALT);
+        User u = new User(request.getParameter("username"), enPassword);
+        final boolean exists = userService.findByUsername(u.getUsername());
+        if (exists) {
+            return new ModelAndView("errorpage", "errorMessage", "Account Already Exists");
         }
-    }
-
-    @GetMapping(path="/loginSuccessful")
-    public @ResponseBody ModelAndView login1 (HttpServletRequest request){
-        ModelAndView mav = new ModelAndView();
-        mav.setViewName("login");
-        return mav;
-    }
-    @PostMapping(path="/loginSuccessful")
-    public @ResponseBody ModelAndView login ( HttpServletRequest request, Model model){
-
-
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        boolean flag=false;
-        List<User> userList = (List<User>)userRepository.findAll();
-        BCryptPasswordEncoderBean bCryptPasswordEncoder=new BCryptPasswordEncoderBean();
-        for (User a: userList) {
-            if (a.getEmail().equals(username)&&bCryptPasswordEncoder.bCryptPasswordEncoder().matches(password,a.getPassword())) {
-                flag = true;
-                break;
-            }
-        }
-           ModelAndView mav = new ModelAndView();
-
-           if(flag) {
-               mav.setViewName("index");
-               return mav;
-           }else{
-               mav.setViewName("loginError");
-               return mav;
-           }
-    }
-
-    @PostMapping(value = "/uploadphoto")
-    public ModelAndView uploadPicture(HttpSession session, HttpServletRequest request) throws IOException {
-
-        String fromPicturePath=Path.extractPrefixPath + request.getParameter("photo");
-        String toPicturePath = Path.savePrefixPath + request.getParameter("photo");
-        String userPath = Path.applicationPrefixPath + request.getParameter("photo");
-        Files.copy(Paths.get(fromPicturePath), Paths.get(toPicturePath), StandardCopyOption.REPLACE_EXISTING);
-        final String username = session.getAttribute("username").toString();
-        if (username.isEmpty()) {
+        User uCheck = userService.save(u);
+        if (uCheck != null) {
             return new ModelAndView("index");
+        } else {
+            return new ModelAndView("errorpage", "errorMessage", "Save User Failed");
         }
-        User user = userRepository.findByEmail(username);
-        user.setPhoto(userPath);
-        userRepository.save(user);
-        ModelAndView mav = new ModelAndView();
-        mav.addObject("username", username);
-        mav.addObject("picturepath", userPath);
-        mav.addObject("aboutMe", userRepository.findByEmail(username).getAboutMe());
-        mav.setViewName("index");
-        return mav;
     }
 
-    @RequestMapping(value = "/deletephoto", method = {RequestMethod.GET, RequestMethod.POST})
-    public ModelAndView deleteProfilePicture(HttpSession session) {
+    @PostMapping(value = "/signinvalidate")
+    public ModelAndView siginInValidate(@Valid User user, BindingResult result, HttpServletRequest request, HttpServletResponse response, HttpSession session) throws UnsupportedEncodingException {
+
+        if (result.hasErrors()) {
+            List<ObjectError> errors = result.getAllErrors();
+            String eMessage = errors.stream().map(e -> e.getDefaultMessage()).findFirst().get();
+            return new ModelAndView("errorpage", "errorMessage", eMessage);
+        }
+
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+
+        final boolean exists = userService.findByUsername(username);
+        if (!exists) {
+            return new ModelAndView("errorpage", "errorMessage", "Account Not Found");
+        }
+
+        String enPassword = BCrypt.hashpw(password, BCryptUtility.SALT);
+        final boolean checked = userService.findByUsernameAndPassword(username, enPassword);
+        if (!checked) {
+            return new ModelAndView("errorpage", "errorMessage", "Username or Password Invalid");
+        }
+
+        User loggedUser = userService.getUser(username);
+        ModelAndView mav = new ModelAndView();
+        mav.addObject("aboutMe", loggedUser.getAboutMe());
+        mav.addObject("currentTime", LocalDate.now());
+        mav.addObject("user", username);
+        session.setAttribute("user", username);
+        //select profiles
+        String envir = env.getProperty("profile");
+
+//        if (envir.equals("default")) {
+//            String picturePath = PictureStoreUtility.pictureApplicationPath + loggedUser.getProfile();
+//            mav.addObject("userProfile", picturePath);
+//            mav.setViewName("userindexlocal");
+//            return mav;
+//
+//        } else {
+            final AmazonS3 s3 = AWSDefaultConfiguration.getInstance();
+            String profileData = null;
+            try {
+                S3Object o = s3.getObject(ApplicationConstant.bucket, username);
+                profileData = Base64Utility.transferProfile(o);
+            } catch (Exception e) {
+                mav.setViewName("userindex");
+                return mav;
+            }
+            mav.addObject("userProfile", profileData);
+            mav.setViewName("userindex");
+            return mav;
+       // }
+    }
+
+    @PostMapping(value = "/uploadpicture")
+    public ModelAndView uploadProfilePicture(HttpSession session, HttpServletRequest request, @RequestParam("profilepicture") MultipartFile file) throws Exception {
         final String username = session.getAttribute("user").toString();
         if (username.isEmpty()) {
             return new ModelAndView("index");
         }
-        User user = userRepository.findByEmail(username);
-        user.setPhoto(null);
-        userRepository.save(user);
+        User loggedUser = userService.getUser(username);
         ModelAndView mav = new ModelAndView();
         mav.addObject("user", username);
+        mav.addObject("currentTime", LocalDate.now());
+        mav.addObject("aboutMe", loggedUser.getAboutMe());
 
-        mav.addObject("picturepath", userRepository.findByEmail(username).getPhoto());
-        mav.addObject("aboutMe", userRepository.findByEmail(username).getAboutMe());
-        mav.setViewName("userindex");
-        return mav;
-    }
+        String envir = env.getProperty("profile");
+
+//        if (envir.equals("default")) {
+//
+//            String profileName = request.getParameter("profilepicture");
+//            loggedUser.setProfile(profileName);
+//            userService.save(loggedUser);
+//            String pictureAbsolutePath = PictureStoreUtility.pictureLocalPath + profileName;
+//            String profileApplicationPath = PictureStoreUtility.pictureApplicationAbsolutePath + profileName;
+//            Files.copy(Paths.get(pictureAbsolutePath), Paths.get(profileApplicationPath), StandardCopyOption.REPLACE_EXISTING);
+//            mav.addObject("userProfile", PictureStoreUtility.pictureApplicationPath + profileName);
+//            mav.setViewName("userindexlocal");
+//            return mav;
+//
+//        } else {
+
+            System.out.println(file.getOriginalFilename());
+            final AmazonS3 s3 = AWSDefaultConfiguration.getInstance();
+            String profileData = null;
+            System.out.println(file.getBytes());
+            File x = PictureStoreUtility.convertFromMultipart(file);
+            System.out.println(System.getProperty("user.dir"));
+            System.out.println(x.getAbsolutePath());
+            System.out.println(x.getName());
+            try {
+                s3.putObject(new PutObjectRequest(ApplicationConstant.bucket, username, x));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            try {
+                profileData = Base64Utility.transferProfile(s3.getObject(ApplicationConstant.bucket, username));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            mav.addObject("userProfile", profileData);
+            mav.setViewName("userindex");
+            return mav;
+        }
+
+
+    @RequestMapping(value = "/deletepicture", method = {RequestMethod.GET, RequestMethod.POST})
+    public ModelAndView deleteProfilePicture(HttpSession session) throws IOException {
+        final String username = session.getAttribute("user").toString();
+        if (username.isEmpty()) {
+            return new ModelAndView("index");
+        }
+        User loggedUser = userService.getUser(username);
+        ModelAndView mav = new ModelAndView();
+        mav.addObject("user", username);
+        mav.addObject("currentTime", LocalDate.now());
+        mav.addObject("aboutMe", loggedUser.getAboutMe());
+
+        String envir = env.getProperty("profile");
+//         if (envir.equals("default")) {
+//             String profileApplicationPath =  PictureStoreUtility.pictureApplicationAbsolutePath + loggedUser.getProfile();
+//             Files.delete(Paths.get(profileApplicationPath));
+//             loggedUser.setProfile(null);
+//             userService.save(loggedUser);
+//             mav.setViewName("userindexlocal");
+//             return mav;
+
+//         } else {
+            final AmazonS3 s3 = AWSDefaultConfiguration.getInstance();
+            try {
+                s3.deleteObject(ApplicationConstant.bucket, loggedUser.getUsername());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            mav.addObject("userProfile", null);
+            mav.setViewName("userindex");
+            return mav;
+        }
+    //}
 
     @PostMapping(value = "/uploadaboutme")
     public ModelAndView uploadAboutMe(HttpSession session, HttpServletRequest request) {
@@ -144,38 +225,60 @@ public class UserController {
         if (username.isEmpty()) {
             return new ModelAndView("index");
         }
+
         final String aboutMe = request.getParameter("aboutme");
-        User user = userRepository.findByEmail(username);
-        user.setAboutMe(aboutMe);
-        userRepository.save(user);
+        User u = userService.getUser(username);
+        u.setAboutMe(aboutMe);
+        userService.save(u);
+
         ModelAndView mav = new ModelAndView();
         mav.addObject("user", username);
-        mav.addObject("picturepath", userRepository.findByEmail(username).getPhoto());
-        mav.addObject("aboutMe", userRepository.findByEmail(username).getAboutMe());
-        mav.setViewName("userindex");
-        return mav;
-    }
+        mav.addObject("currentTime", LocalDate.now());
+        mav.addObject("aboutMe", u.getAboutMe());
+
+        String envir = env.getProperty("profile");
+//         if(envir.equals("default")) {
+//             mav.addObject("userProfile", PictureStoreUtility.pictureApplicationPath + u.getProfile());
+//             mav.setViewName("userindexlocal");
+//             return mav;
+//         } else {
+            final AmazonS3 s3 = AWSDefaultConfiguration.getInstance();
+            String profileData = null;
+            try {
+                S3Object o = s3.getObject(ApplicationConstant.bucket, username);
+                profileData = Base64Utility.transferProfile(o);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            mav.addObject("userProfile", profileData);
+            mav.setViewName("userindex");
+            return mav;
+        }
+
+   // }
 
     @GetMapping(value = "/showprofile")
-    public ModelAndView showProfile(@RequestParam("username") String username) {
-        User user = userRepository.findByEmail(username);
+    public ModelAndView showAboutme(@RequestParam("username") String username) {
+        User user = userService.getUser(username);
         if (user == null) {
-            return new ModelAndView("loginError", "errorMessage", "User Not Exists");
+            return new ModelAndView("errorpage", "errorMessage", "User Not Exists");
         }
         ModelAndView mav = new ModelAndView();
         mav.addObject("user", username);
-        mav.addObject("picturepath", user.getPhoto());
         mav.addObject("aboutme", user.getAboutMe());
         mav.setViewName("profile");
         return mav;
     }
 
-    @GetMapping(path="/logout")
-    public @ResponseBody ModelAndView logout (HttpServletRequest request){
-        ModelAndView mav = new ModelAndView();
-        HttpSession session=request.getSession();
+    @GetMapping(value = "/logout")
+    public ModelAndView logOut(HttpServletRequest request, HttpServletResponse response) {
+
+        HttpSession session = request.getSession();
+        if (!session.getAttribute("user").equals("")) {
+            session.setAttribute("user", null);
+        }
         session.invalidate();
-        mav.setViewName("login");
-        return mav;
+        return new ModelAndView("index");
     }
+
 }

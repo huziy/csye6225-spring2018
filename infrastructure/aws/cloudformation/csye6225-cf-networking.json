@@ -1,0 +1,205 @@
+{
+    "Description" : "NetworkStack",
+    "Resources" : {
+    "HLLcsye6225vpc" : {
+        "Type" : "AWS::EC2::VPC",
+        "Properties" : {
+	   "CidrBlock" : "10.0.0.0/16",
+	   "EnableDnsSupport" : "true",
+           "EnableDnsHostnames" : "true",
+           "Tags" : [
+            {
+              "Key" : "Name",
+              "Value" : {"Ref":"vpcName"}
+            }
+          ]
+        }
+    },
+    "PublicSubnet" : {
+        "Type" : "AWS::EC2::Subnet",
+        "Properties" : {
+           "VpcId" : {
+              "Ref" : "HLLcsye6225vpc"
+           },
+           "CidrBlock" : "10.0.0.0/24",
+	   "MapPublicIpOnLaunch" : "true",
+	   "AvailabilityZone" : "us-east-1a"
+        }
+    },
+"WebServerSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+		"Tags" :  [{"Key" : "Web", "Value" : "web"}],
+                "GroupName":"csye6225-webapp",
+                "GroupDescription": "Enable HTTP access via port 80, SSH access via port 22, HTTPS access via port 443",
+                "VpcId":{"Ref":"HLLcsye6225vpc"},
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+		    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8080",
+                        "ToPort": "8080",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "22",
+                        "ToPort": "22",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "443",
+                        "ToPort": "443",
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ]
+            }
+        },
+    "DBSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+		"Tags" :  [{"Key" : "db", "Value" : "db"}],
+                "GroupName":"csye6225-rds",
+                "GroupDescription": "database",
+                "VpcId":{"Ref":"HLLcsye6225vpc"},
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "3306",
+                        "ToPort": "3306",
+                        "SourceSecurityGroupId" : {"Ref":"WebServerSecurityGroup"}
+                    }
+                ]
+            }
+        },
+
+	"myDBSubnetGroup" : {
+         "Type" : "AWS::RDS::DBSubnetGroup",
+         "Properties" : {
+            "DBSubnetGroupDescription" : "description",
+            "SubnetIds" : [ {"Ref" : "PublicSubnet"}, {"Ref" : "PrivateSubnet"}],
+            "Tags" : [ {"Key" : "String", "Value" : "String"} ]
+         }
+      },
+    
+    "PublicSubnet" : {
+        "Type" : "AWS::EC2::Subnet",
+        "Properties" : {
+           "VpcId" : {
+              "Ref" : "HLLcsye6225vpc"
+           },
+           "CidrBlock" : "10.0.0.0/24",
+	   "MapPublicIpOnLaunch" : "true",
+	   "AvailabilityZone" : "us-east-1a"
+        }
+    },
+    "SubnetRouteTableAssociation1" : {
+         "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+         "Properties" : {
+            "SubnetId" : { "Ref" : "PublicSubnet" },
+            "RouteTableId" : { "Ref" : "PublicRouteTable" }
+         }
+    },
+    "SubnetRouteTableAssociation2" : {
+         "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+         "Properties" : {
+            "SubnetId" : { "Ref" : "PrivateSubnet" },
+            "RouteTableId" : { "Ref" : "PrivateRouteTable" }
+         }
+    },
+   "PrivateSubnet" : {
+        "Type" : "AWS::EC2::Subnet",
+        "Properties" : {
+           "VpcId" : {
+              "Ref" : "HLLcsye6225vpc"
+           },
+           "CidrBlock" : "10.0.1.0/24",
+	   "AvailabilityZone" : "us-east-1c"
+        }
+    },
+    "InternetGateway" : {
+        "Type" : "AWS::EC2::InternetGateway",
+        "Properties" : {
+            "Tags" : [
+                {
+                  "Key" : "Name",
+                  "Value" : {"Ref":"gatewayName"}
+                }
+            ]
+        }
+    },
+    "AttachGateway" : {
+        "Type" : "AWS::EC2::VPCGatewayAttachment",
+        "Properties" : {
+           "VpcId" : {
+              "Ref" : "HLLcsye6225vpc"
+           },
+           "InternetGatewayId" : {
+              "Ref" : "InternetGateway"
+           }
+        }
+    },
+
+    "PublicRouteTable" : {
+        "Type" : "AWS::EC2::RouteTable",
+        "Properties" : {
+           "VpcId" : {
+              "Ref" : "HLLcsye6225vpc"
+           },
+           "Tags" : [
+            {
+              "Key" : "Name",
+              "Value" : {"Ref":"routeTableName"}
+            }
+        ]
+        }
+    },
+   "PrivateRouteTable" : {
+        "Type" : "AWS::EC2::RouteTable",
+        "Properties" : {
+           "VpcId" : {
+              "Ref" : "HLLcsye6225vpc"
+           },
+           "Tags" : [
+            {
+              "Key" : "Name",
+              "Value" : {"Ref":"privaterouteTableName"}
+            }
+        ]
+        }
+    },
+    "PublicRoute" : {
+        "DependsOn" : "AttachGateway",
+        "Type" : "AWS::EC2::Route",
+        "Properties" : {
+           "GatewayId" : {
+              "Ref" : "InternetGateway"
+           },
+           "DestinationCidrBlock" : "0.0.0.0/0",
+           "RouteTableId" : {
+              "Ref" : "PublicRouteTable"
+           }
+        }
+    }
+},
+     "Parameters" : {
+        "vpcName" : {
+            "Type" : "String"
+        },
+        "gatewayName" : {
+            "Type" : "String"
+        },
+        "routeTableName" : {
+            "Type" : "String"
+        },
+	"privaterouteTableName" : {
+	    "Type" : "String"
+	}
+    }
+}
