@@ -1,4 +1,5 @@
 {
+    "Description" : "NetworkStack",
     "Resources" : {
     "HLLcsye6225vpc" : {
         "Type" : "AWS::EC2::VPC",
