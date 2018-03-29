@@ -113,8 +113,10 @@ public class UserController {
         mav.addObject("currentTime", LocalDate.now());
         mav.addObject("user", username);
         session.setAttribute("user", username);
-       
+
         String envir = env.getProperty("profile");
+
+
             final AmazonS3 s3 = AWSDefaultConfiguration.getInstance();
             String profileData = null;
             try {
@@ -127,7 +129,7 @@ public class UserController {
             mav.addObject("userProfile", profileData);
             mav.setViewName("userindex");
             return mav;
-       
+ 
     }
 
     @PostMapping(value = "/uploadpicture")
@@ -141,7 +143,10 @@ public class UserController {
         mav.addObject("user", username);
         mav.addObject("currentTime", LocalDate.now());
         mav.addObject("aboutMe", loggedUser.getAboutMe());
+
         String envir = env.getProperty("profile");
+
+
             System.out.println(file.getOriginalFilename());
             final AmazonS3 s3 = AWSDefaultConfiguration.getInstance();
             String profileData = null;
@@ -177,7 +182,9 @@ public class UserController {
         mav.addObject("user", username);
         mav.addObject("currentTime", LocalDate.now());
         mav.addObject("aboutMe", loggedUser.getAboutMe());
+
         String envir = env.getProperty("profile");
+
             final AmazonS3 s3 = AWSDefaultConfiguration.getInstance();
             try {
                 s3.deleteObject(ApplicationConstant.bucket, loggedUser.getUsername());
@@ -207,6 +214,7 @@ public class UserController {
         mav.addObject("aboutMe", u.getAboutMe());
 
         String envir = env.getProperty("profile");
+
             final AmazonS3 s3 = AWSDefaultConfiguration.getInstance();
             String profileData = null;
             try {
@@ -219,6 +227,9 @@ public class UserController {
             mav.setViewName("userindex");
             return mav;
         }
+
+
+
     @GetMapping(value = "/showprofile")
     public ModelAndView showAboutme(@RequestParam("username") String username) {
         User user = userService.getUser(username);
