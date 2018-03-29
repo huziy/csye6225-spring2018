@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"  xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.thymeleaf.org ">
 <head>
     <meta charset="UTF-8"/>
     <title>Index</title>
@@ -7,7 +8,7 @@
 <body>
 <div >
     <h1>About Me</h1>
-    <input  id="profile" name="profile" readonly="readonly" value="#{aboutme}"/>
+    <input  id="profile" name="profile" readonly="readonly" th:value="${aboutme}"/>
     <button  type="submit" onclick="window.location.href='/'">Index</button>
     <p >&copy;CSYE6225</p>
 </div>

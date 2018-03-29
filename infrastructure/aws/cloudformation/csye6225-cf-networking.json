@@ -1,9 +1,11 @@
 {
     "Resources" : {
-    "HLLcsye6225VPC" : {
+    "HLLcsye6225vpc" : {
         "Type" : "AWS::EC2::VPC",
         "Properties" : {
-	   "CidrBlock" : "10.42.0.0/16",
+	   "CidrBlock" : "10.0.0.0/16",
+	   "EnableDnsSupport" : "true",
+           "EnableDnsHostnames" : "true",
            "Tags" : [
             {
               "Key" : "Name",
@@ -12,45 +14,24 @@
           ]
         }
     },
-    "MyEC2Instance" : {
-          "Type" : "AWS::EC2::Instance",
-          "Properties" : {
-             "ImageId" : "ami-66506c1c",
-             "InstanceType" : "t2.micro",
-             "DisableApiTermination" : "false",
-             "InstanceInitiatedShutdownBehavior" : "stop",
-             "BlockDeviceMappings" : [
-                {
-                   "DeviceName" : "/dev/sda1",
-                   "Ebs" : {
-                      "VolumeType" : "gp2",
-                      "DeleteOnTermination" : "false",
-                      "VolumeSize" : "16"
-                   }
-                }
-             ],
-             "Tags" : [
-                {
-                    "Key" : "Name",
-                    "Value" : {"Ref":"InstanceName"}
-                }
-             ]
-          }
-       },
-
-
-
-    "WebServerSecurityGroup": {
+"WebServerSecurityGroup": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
+		"Tags" :  [{"Key" : "Web", "Value" : "web"}],
                 "GroupName":"csye6225-webapp",
                 "GroupDescription": "Enable HTTP access via port 80, SSH access via port 22, HTTPS access via port 443",
-                "VpcId":{"Ref":"HLLcsye6225VPC"},
+                "VpcId":{"Ref":"HLLcsye6225vpc"},
                 "SecurityGroupIngress": [
                     {
                         "IpProtocol": "tcp",
                         "FromPort": "80",
                         "ToPort": "80",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+		    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "8080",
+                        "ToPort": "8080",
                         "CidrIp": "0.0.0.0/0"
                     },
                     {
@@ -71,9 +52,10 @@
     "DBSecurityGroup": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
+		"Tags" :  [{"Key" : "db", "Value" : "db"}],
                 "GroupName":"csye6225-rds",
                 "GroupDescription": "database",
-                "VpcId":{"Ref":"HLLcsye6225VPC"},
+                "VpcId":{"Ref":"HLLcsye6225vpc"},
                 "SecurityGroupIngress": [
                     {
                         "IpProtocol": "tcp",
@@ -85,14 +67,23 @@
             }
         },
 
+	"myDBSubnetGroup" : {
+         "Type" : "AWS::RDS::DBSubnetGroup",
+         "Properties" : {
+            "DBSubnetGroupDescription" : "description",
+            "SubnetIds" : [ {"Ref" : "PublicSubnet"}, {"Ref" : "PrivateSubnet"}],
+            "Tags" : [ {"Key" : "String", "Value" : "String"} ]
+         }
+      },
     
     "PublicSubnet" : {
         "Type" : "AWS::EC2::Subnet",
         "Properties" : {
            "VpcId" : {
-              "Ref" : "HLLcsye6225VPC"
+              "Ref" : "HLLcsye6225vpc"
            },
-           "CidrBlock" : "10.42.0.0/24",
+           "CidrBlock" : "10.0.0.0/24",
+	   "MapPublicIpOnLaunch" : "true",
 	   "AvailabilityZone" : "us-east-1a"
         }
     },
@@ -114,9 +105,9 @@
         "Type" : "AWS::EC2::Subnet",
         "Properties" : {
            "VpcId" : {
-              "Ref" : "HLLcsye6225VPC"
+              "Ref" : "HLLcsye6225vpc"
            },
-           "CidrBlock" : "10.42.1.0/24",
+           "CidrBlock" : "10.0.1.0/24",
 	   "AvailabilityZone" : "us-east-1c"
         }
     },
@@ -135,7 +126,7 @@
         "Type" : "AWS::EC2::VPCGatewayAttachment",
         "Properties" : {
            "VpcId" : {
-              "Ref" : "HLLcsye6225VPC"
+              "Ref" : "HLLcsye6225vpc"
            },
            "InternetGatewayId" : {
               "Ref" : "InternetGateway"
@@ -147,7 +138,7 @@
         "Type" : "AWS::EC2::RouteTable",
         "Properties" : {
            "VpcId" : {
-              "Ref" : "HLLcsye6225VPC"
+              "Ref" : "HLLcsye6225vpc"
            },
            "Tags" : [
             {
@@ -161,7 +152,7 @@
         "Type" : "AWS::EC2::RouteTable",
         "Properties" : {
            "VpcId" : {
-              "Ref" : "HLLcsye6225VPC"
+              "Ref" : "HLLcsye6225vpc"
            },
            "Tags" : [
             {
@@ -169,19 +160,6 @@
               "Value" : {"Ref":"privaterouteTableName"}
             }
         ]
-        }
-    },
-    "PrivateRoute" : {
-        "DependsOn" : "AttachGateway",
-        "Type" : "AWS::EC2::Route",
-        "Properties" : {
-           "GatewayId" : {
-              "Ref" : "InternetGateway"
-           },
-           "DestinationCidrBlock" : "10.0.1.0/24",
-           "RouteTableId" : {
-              "Ref" : "PrivateRouteTable"
-           }
         }
     },
     "PublicRoute" : {
@@ -196,33 +174,8 @@
               "Ref" : "PublicRouteTable"
            }
         }
-    },
-    "myDBSubnetGroup" : {
-         "Type" : "AWS::RDS::DBSubnetGroup",
-         "Properties" : {
-            "DBSubnetGroupDescription" : "description",
-            "SubnetIds" : [ {"Ref" : "PublicSubnet"}, {"Ref" : "PrivateSubnet"} ],
-            "Tags" : [ {"Key" : "String", "Value" : "String"} ]
-         }
-      }
-    },
-    "Mappings" : {
-        "SubnetConfig" : {
-           "Public" : {
-              "CIDR" : "10.0.0.0/24"
-           }
-        },
-	"SubnetConfig2" : {
-           "Private" : {
-              "CIDR" : "10.0.1.0/24"
-           }
-        },
-        "AWSRegionArch2AMI" : {
-           "us-east-1" : {
-              "AMI" : "ami-66506c1c"
-           }
-        }
-     },
+    }
+},
      "Parameters" : {
         "vpcName" : {
             "Type" : "String"
@@ -235,9 +188,6 @@
         },
 	"privaterouteTableName" : {
 	    "Type" : "String"
-	},
-	"InstanceName" : {
-            "Type" : "String"
-        }
+	}
     }
 }
