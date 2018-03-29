@@ -4,6 +4,11 @@ package com.csye6225.spring2018.controller;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.sns.AmazonSNS;
+import com.amazonaws.services.sns.AmazonSNSClient;
+import com.amazonaws.services.sns.AmazonSNSClientBuilder;
+import com.amazonaws.services.sns.model.PublishRequest;
+import com.amazonaws.services.sns.model.PublishResult;
 import com.csye6225.spring2018.Utility.BCryptUtility;
 import com.csye6225.spring2018.Utility.Base64Utility;
 import com.csye6225.spring2018.Utility.PictureStoreUtility;
@@ -198,15 +203,15 @@ public class UserController {
         mav.addObject("aboutMe", loggedUser.getAboutMe());
 
         String envir = env.getProperty("profile");
-        if (envir.equals("default")) {
-            String profileApplicationPath =  PictureStoreUtility.pictureApplicationAbsolutePath + loggedUser.getProfile();
-            Files.delete(Paths.get(profileApplicationPath));
-            loggedUser.setProfile(null);
-            userService.save(loggedUser);
-            mav.setViewName("userindexlocal");
-            return mav;
-
-        } else {
+//        if (envir.equals("default")) {
+//            String profileApplicationPath =  PictureStoreUtility.pictureApplicationAbsolutePath + loggedUser.getProfile();
+//            Files.delete(Paths.get(profileApplicationPath));
+//            loggedUser.setProfile(null);
+//            userService.save(loggedUser);
+//            mav.setViewName("userindexlocal");
+//            return mav;
+//
+//        } else {
             final AmazonS3 s3 = AWSDefaultConfiguration.getInstance();
             try {
                 s3.deleteObject(ApplicationConstant.bucket, loggedUser.getUsername());
@@ -217,7 +222,7 @@ public class UserController {
             mav.setViewName("userindex");
             return mav;
         }
-    }
+   // }
 
     @PostMapping(value = "/uploadaboutme")
     public ModelAndView uploadAboutMe(HttpSession session, HttpServletRequest request) {
@@ -237,11 +242,11 @@ public class UserController {
         mav.addObject("aboutMe", u.getAboutMe());
 
         String envir = env.getProperty("profile");
-        if(envir.equals("default")) {
-            mav.addObject("userProfile", PictureStoreUtility.pictureApplicationPath + u.getProfile());
-            mav.setViewName("userindexlocal");
-            return mav;
-        } else {
+//        if(envir.equals("default")) {
+//            mav.addObject("userProfile", PictureStoreUtility.pictureApplicationPath + u.getProfile());
+//            mav.setViewName("userindexlocal");
+//            return mav;
+//        } else {
             final AmazonS3 s3 = AWSDefaultConfiguration.getInstance();
             String profileData = null;
             try {
@@ -255,7 +260,7 @@ public class UserController {
             return mav;
         }
 
-    }
+
 
     @GetMapping(value = "/showprofile")
     public ModelAndView showAboutme(@RequestParam("username") String username) {
@@ -268,6 +273,16 @@ public class UserController {
         mav.addObject("aboutme", user.getAboutMe());
         mav.setViewName("profile");
         return mav;
+    }
+
+    @RequestMapping(value = "/resetpassword", method = {RequestMethod.GET, RequestMethod.POST})
+    public ModelAndView resetPassword(HttpServletRequest request,HttpSession session, @RequestParam("email") String email) {
+        AmazonSNS snsClient = AmazonSNSClientBuilder.defaultClient();
+        String msg = request.getParameter("email");
+        String topicArn = snsClient.createTopic("NotifyMe").getTopicArn();
+        PublishRequest publishRequest = new PublishRequest(topicArn, msg);
+        PublishResult publishResult = snsClient.publish(publishRequest);
+        return new ModelAndView("index");
     }
 
     @GetMapping(value = "/logout")
