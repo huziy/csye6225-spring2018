@@ -184,7 +184,7 @@
 			"Properties": {
 				"Subscription": [{
 					"Endpoint": {
-						"Ref": "awslambda"
+						"Ref": "lambdaarn"
 					},
 					"Protocol": "lambda"
 				}],
@@ -209,7 +209,7 @@
 		"DBSubnetGroup": {
 			"Type": "String"
 		},
-		"awslambda": {
+		"lambdaarn": {
 			"Type": "String"
 		}
 	}
