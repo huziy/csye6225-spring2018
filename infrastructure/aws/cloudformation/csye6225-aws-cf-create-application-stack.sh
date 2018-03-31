@@ -20,11 +20,11 @@ echo $dbpolicy
 subnetgroupname=$(aws rds describe-db-subnet-groups --query "DBSubnetGroups[1].DBSubnetGroupName" --output text)
 echo $subnetgroupname
 
-lambdaarn=$(aws lambda get-function --function-name "awslambda" --query "Configuration.FunctionArn" --output text)
-echo $lambdaarn
+awslambdaservice=$(aws lambda get-function --function-name "csye6225-lambda" --query "Configuration.FunctionArn" --output text)
+echo $awslambdaservice
 
 
-aws cloudformation create-stack --template-body file://./csye6225-cf-application.json --stack-name ${stackname} --capabilities "CAPABILITY_NAMED_IAM" --parameters ParameterKey=InstanceName,ParameterValue=$instanceName ParameterKey=SubnetId,ParameterValue=$subnetId ParameterKey=WebPolicy,ParameterValue=$webpolicy ParameterKey=DBPolicy,ParameterValue=$dbpolicy ParameterKey=DBSubnetGroup,ParameterValue=$subnetgroupname ParameterKey=lambdaarn,ParameterValue=$lambdaarn
+aws cloudformation create-stack --template-body file://./csye6225-cf-application.json --stack-name ${stackname} --capabilities "CAPABILITY_NAMED_IAM" --parameters ParameterKey=InstanceName,ParameterValue=$instanceName ParameterKey=SubnetId,ParameterValue=$subnetId ParameterKey=WebPolicy,ParameterValue=$webpolicy ParameterKey=DBPolicy,ParameterValue=$dbpolicy ParameterKey=DBSubnetGroup,ParameterValue=$subnetgroupname ParameterKey=awslambdaservice,ParameterValue=$awslambdaservice
 
 aws cloudformation wait stack-create-complete --stack-name ${stackname} 
 echo done
