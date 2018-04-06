@@ -25,7 +25,11 @@
     "TravisUploadToS3": {
       "Type": "AWS::IAM::Policy",
       "Properties": {
+<<<<<<< HEAD
 	"Users" : ["awscli"],
+=======
+	"Users" : ["ziyan"],
+>>>>>>> 703588aeb390b636e699f065c06b498ba674321f
         "PolicyName": "Travis-Upload-To-S3",
         "PolicyDocument": {
           "Version": "2012-10-17",
@@ -46,7 +50,11 @@
 "TravisCodeDeploy": {
       "Type": "AWS::IAM::Policy",
       "Properties": {
+<<<<<<< HEAD
 	"Users" : ["awscli"],
+=======
+	"Users" : ["ziyan"],
+>>>>>>> 703588aeb390b636e699f065c06b498ba674321f
         "PolicyName": "Travis-Code-Deploy",
         "PolicyDocument": {
           "Version": "2012-10-17",
@@ -132,7 +140,11 @@
 	"CodeDeployS3Bucket" : {
 	"Type" : "AWS::S3::Bucket",
   	"Properties" : {
+<<<<<<< HEAD
 	    "BucketName" : "s3.csye6225-spring2018-codedeploy-liujunyu.me"
+=======
+	    "BucketName" : "s3.csye6225-spring2018-codedeploy-huziy.me"
+>>>>>>> 703588aeb390b636e699f065c06b498ba674321f
 	 }
      },
       "CodeDeployApplication" : {

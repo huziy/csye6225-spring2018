@@ -75,6 +75,17 @@ dependencies {
         testCompile group: 'junit', name: 'junit', version: '4.11'
     }
 
+<<<<<<< HEAD
+=======
+
+    dependencies {
+        compile 'com.amazonaws:aws-java-sdk-sns'
+        testCompile group: 'junit', name: 'junit', version: '1.11.297'
+    }
+
+
+
+>>>>>>> 703588aeb390b636e699f065c06b498ba674321f
     runtime('org.springframework.boot:spring-boot-devtools')
     runtime('mysql:mysql-connector-java')
 

@@ -22,6 +22,7 @@
     <div>
         <h1 th:text="${user}"></h1>
         <h6 th:text="${currentTime}"></h6>
+<<<<<<< HEAD
 
         <!-- th:src="@{${'/home/huziy/Downloads/'+picturePath}}" -->
 
@@ -30,6 +31,9 @@
         <img width="200" height="200"  th:src="@{${'data:image;base64,'+userProfile}}"> </img>
 
 
+=======
+        <img width="200" height="200"  th:src="@{${'data:image;base64,'+userProfile}}"> </img>
+>>>>>>> 703588aeb390b636e699f065c06b498ba674321f
         <form th:action="@{/user/uploadpicture}" method="POST" enctype="multipart/form-data">
             <input  type="file" id="profilepicture" name="profilepicture" />
             <button type="submit" th:onclick="'checkFileType()'">Upload</button>
