@@ -247,7 +247,7 @@ public class UserController {
     public ModelAndView resetPassword(HttpServletRequest request,HttpSession session, @RequestParam("email") String email) {
         AmazonSNS snsClient = AmazonSNSClientBuilder.defaultClient();
         String msg = request.getParameter("email");
-        String topicArn = snsClient.createTopic("NotifyMe").getTopicArn();
+        String topicArn = snsClient.createTopic("password_reset").getTopicArn();
         PublishRequest publishRequest = new PublishRequest(topicArn, msg);
         PublishResult publishResult = snsClient.publish(publishRequest);
         return new ModelAndView("index");
