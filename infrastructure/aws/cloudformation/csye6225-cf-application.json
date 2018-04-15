@@ -2,23 +2,21 @@
 	"AWSTemplateFormatVersion": "2010-09-09",
 	"Description": "ApplicationStack",
 	"Resources": {
-		"MyEC2Instance": {
-			"Type": "AWS::EC2::Instance",
+		"LaunchConfig": {
+			"Type": "AWS::AutoScaling::LaunchConfiguration",
 			"Properties": {
-				"ImageId": "ami-66506c1c",
-				"InstanceType": "t2.micro",
-				"KeyName": "liujunyu",
-				"SubnetId": {
-					"Ref": "SubnetId"
+				"AssociatePublicIpAddress": "true",
+				"IamInstanceProfile": "ec2profile",
+				"ImageId": {
+					"Ref": "ImageId"
 				},
-				"SecurityGroupIds": [{
+				"InstanceType": {
+					"Ref": "InstanceType"
+				},
+				"KeyName": "liujunyu",
+				"SecurityGroups": [{
 					"Ref": "WebPolicy"
 				}],
-				"DisableApiTermination": "false",
-				"IamInstanceProfile": {
-					"Ref": "ec2instanceprofile"
-				},
-				"InstanceInitiatedShutdownBehavior": "stop",
 				"UserData": {
 					"Fn::Base64": {
 						"Fn::Join": [
@@ -93,35 +91,197 @@
 							]
 						]
 					}
-				},
-				"BlockDeviceMappings": [{
-					"DeviceName": "/dev/sda1",
-					"Ebs": {
-						"VolumeType": "gp2",
-						"DeleteOnTermination": "false",
-						"VolumeSize": "16"
-					}
-				}],
-				"Tags": [{
-						"Key": "Name",
-						"Value": {
-							"Ref": "InstanceName"
-						}
-					},
-					{
-						"Key": "deploy",
-						"Value": "deploy"
-					}
-				]
+				}
 			}
 		},
 
-		"ec2instanceprofile": {
-			"Type": "AWS::IAM::InstanceProfile",
+		"InstanceAutoScalinGroup": {
+			"Type": "AWS::AutoScaling::AutoScalingGroup",
 			"Properties": {
-				"Path": "/",
-				"Roles": ["CodeDeployEC2ServiceRole"],
-				"InstanceProfileName": "ec2profile"
+				"Cooldown": {
+					"Ref": "CoolDown"
+				},
+				"DesiredCapacity": {
+					"Ref": "DesiredCapacity"
+				},
+				"LaunchConfigurationName": {
+					"Ref": "LaunchConfig"
+				},
+				"MaxSize": {
+					"Ref": "MaxSize"
+				},
+				"MinSize": {
+					"Ref": "MinSize"
+				},
+				"TargetGroupARNs": [{
+					"Ref": "HttpTargetGroup"
+				}],
+				"VPCZoneIdentifier": [{
+						"Ref": "Subnet1"
+					},
+					{
+						"Ref": "Subnet2"
+					},
+					{
+						"Ref": "Subnet3"
+					}
+				],
+				"Tags": [{
+					"Key": "deploy",
+					"Value": "deploy",
+					"PropagateAtLaunch": "true"
+				}]
+			}
+		},
+
+		"WebServerScaleUpPolicy": {
+			"Type": "AWS::AutoScaling::ScalingPolicy",
+			"Properties": {
+				"AdjustmentType": "ChangeInCapacity",
+				"AutoScalingGroupName": {
+					"Ref": "InstanceAutoScalinGroup"
+				},
+				"Cooldown": {
+					"Ref": "CoolDown"
+				},
+				"ScalingAdjustment": "1"
+			}
+		},
+
+		"WebServerScaleDownPolicy": {
+			"Type": "AWS::AutoScaling::ScalingPolicy",
+			"Properties": {
+				"AdjustmentType": "ChangeInCapacity",
+				"AutoScalingGroupName": {
+					"Ref": "InstanceAutoScalinGroup"
+				},
+				"Cooldown": {
+					"Ref": "CoolDown"
+				},
+				"ScalingAdjustment": "-1"
+			}
+		},
+
+		"CPUAlarmHigh": {
+			"Type": "AWS::CloudWatch::Alarm",
+			"Properties": {
+				"AlarmDescription": "Scale-up if CPU > 90% for 10 minutes",
+				"MetricName": "CPUUtilization",
+				"Namespace": "AWS/EC2",
+				"Statistic": "Average",
+				"Period": "300",
+				"EvaluationPeriods": "2",
+				"Threshold": "90",
+				"AlarmActions": [{
+					"Ref": "WebServerScaleUpPolicy"
+				}],
+				"Dimensions": [{
+					"Name": "AutoScalingGroupName",
+					"Value": {
+						"Ref": "InstanceAutoScalinGroup"
+					}
+				}],
+				"ComparisonOperator": "GreaterThanThreshold"
+			}
+		},
+
+		"CPUAlarmLow": {
+			"Type": "AWS::CloudWatch::Alarm",
+			"Properties": {
+				"AlarmDescription": "Scale-down if CPU < 70% for 10 minutes",
+				"MetricName": "CPUUtilization",
+				"Namespace": "AWS/EC2",
+				"Statistic": "Average",
+				"Period": "300",
+				"EvaluationPeriods": "2",
+				"Threshold": "70",
+				"AlarmActions": [{
+					"Ref": "WebServerScaleDownPolicy"
+				}],
+				"Dimensions": [{
+					"Name": "AutoScalingGroupName",
+					"Value": {
+						"Ref": "InstanceAutoScalinGroup"
+					}
+				}],
+				"ComparisonOperator": "LessThanThreshold"
+			}
+		},
+
+		"loadBalancer": {
+			"Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+			"Properties": {
+				"Scheme": "internet-facing",
+				"SecurityGroups": [{
+					"Ref": "LoadBalancerPolicy"
+				}],
+				"Subnets": [{
+						"Ref": "Subnet1"
+					},
+					{
+						"Ref": "Subnet2"
+					},
+					{
+						"Ref": "Subnet3"
+					}
+				],
+				"Tags": [{
+					"Key": "loadbalancer",
+					"Value": "loadbalancer"
+				}]
+			}
+		},
+
+		"ListenerToTarget": {
+			"Type": "AWS::ElasticLoadBalancingV2::Listener",
+			"Properties": {
+				"DefaultActions": [{
+					"Type": "forward",
+					"TargetGroupArn": {
+						"Ref": "HttpTargetGroup"
+					}
+				}],
+				"LoadBalancerArn": {
+					"Ref": "loadBalancer"
+				},
+				"Port": "443",
+				"Protocol": "HTTPS",
+				"Certificates": [{
+					"CertificateArn": "arn:aws:acm:us-east-1:580863620382:certificate/befea903-9085-447f-8331-57d695d9d7b7"
+				}]
+			}
+		},
+
+		"HttpTargetGroup": {
+			"Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+			"Properties": {
+				"Name": "httptest",
+				"Port": "8080",
+				"Protocol": "HTTP",
+				"VpcId": {
+					"Ref": "VpcId"
+				}
+			}
+		},
+
+		"Route53Domain": {
+			"Type": "AWS::Route53::RecordSet",
+			"Properties": {
+				"AliasTarget": {
+					"DNSName": {
+						"Fn::GetAtt": ["loadBalancer", "DNSName"]
+					},
+					"HostedZoneId": {
+						"Fn::GetAtt": ["loadBalancer", "CanonicalHostedZoneID"]
+					}
+				},
+				"Name": {
+					"Ref": "DomainName"
+				},
+				"HostedZoneName": {
+					"Ref": "DomainName"
+				},
+				"Type": "A"
 			}
 		},
 
@@ -150,7 +310,9 @@
 		"RecordServiceS3Bucket": {
 			"Type": "AWS::S3::Bucket",
 			"Properties": {
-				"BucketName": "s3.csye6225-spring2018-liujunyu.me"
+				"BucketName": {
+					"Ref": "S3BucketName"
+				}
 			}
 		},
 
@@ -159,12 +321,20 @@
 			"Properties": {
 				"DBName": "csye6225",
 				"Engine": "MySQL",
-				"EngineVersion": "5.6.37",
-				"DBInstanceClass": "db.t2.medium",
+				"EngineVersion": {
+					"Ref": "EngineVersion"
+				},
+				"DBInstanceClass": {
+					"Ref": "DBInstanceClass"
+				},
 				"MultiAZ": "false",
 				"DBInstanceIdentifier": "csye6225-spring2018",
-				"MasterUsername": "csye6225master",
-				"MasterUserPassword": "csye6225password",
+				"MasterUsername": {
+					"Ref": "MasterUsername"
+				},
+				"MasterUserPassword": {
+					"Ref": "MasterUserPassword"
+				},
 				"DBSubnetGroupName": {
 					"Ref": "DBSubnetGroup"
 				},
@@ -210,6 +380,57 @@
 			"Type": "String"
 		},
 		"awslambdaservice": {
+			"Type": "String"
+		},
+		"Subnet1": {
+			"Type": "String"
+		},
+		"Subnet2": {
+			"Type": "String"
+		},
+		"Subnet3": {
+			"Type": "String"
+		},
+		"LoadBalancerPolicy": {
+			"Type": "String"
+		},
+		"VpcId": {
+			"Type": "String"
+		},
+		"ImageId": {
+			"Type": "String"
+		},
+		"InstanceType": {
+			"Type": "String"
+		},
+		"CoolDown": {
+			"Type": "String"
+		},
+		"MinSize": {
+			"Type": "String"
+		},
+		"MaxSize": {
+			"Type": "String"
+		},
+		"DesiredCapacity": {
+			"Type": "String"
+		},
+		"DomainName": {
+			"Type": "String"
+		},
+		"EngineVersion": {
+			"Type": "String"
+		},
+		"DBInstanceClass": {
+			"Type": "String"
+		},
+		"MasterUsername": {
+			"Type": "String"
+		},
+		"MasterUserPassword": {
+			"Type": "String"
+		},
+		"S3BucketName": {
 			"Type": "String"
 		}
 	}

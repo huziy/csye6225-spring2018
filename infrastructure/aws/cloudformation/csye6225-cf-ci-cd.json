@@ -1,6 +1,17 @@
 {
 	"Description": "CicdStack",
 	"Resources": {
+
+		"ec2instanceprofile": {
+			"Type": "AWS::IAM::InstanceProfile",
+			"Properties": {
+				"Path": "/",
+				"Roles": [{
+					"Ref": "CodeDeployEC2ServiceRole"
+				}],
+				"InstanceProfileName": "ec2profile"
+			}
+		},
 		"CodeDeployEC2S3": {
 			"Type": "AWS::IAM::Policy",
 			"Properties": {
@@ -214,7 +225,7 @@
 			"Type": "AWS::CodeDeploy::DeploymentGroup",
 			"Properties": {
 				"ApplicationName": "csye6225",
-				"DeploymentConfigName": "CodeDeployDefault.OneAtATime",
+				"DeploymentConfigName": "CodeDeployDefault.AllAtOnce",
 				"DeploymentGroupName": "csye6225-spring2018-team",
 				"DeploymentStyle": {
 					"DeploymentOption": "WITHOUT_TRAFFIC_CONTROL",
