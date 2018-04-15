@@ -1,5 +1,22 @@
 language: java
 jdk:
+  - openjdk8
+
+sudo: false
+install: true
+
+script:
+  - pwd
+  - cd webapp
+  - ./gradlew war
+  - cd build/libs
+  - ls -al
+  - cd ../../..
+  - pwd
+  - ls -al
+
+language: java
+jdk:
 - oraclejdk8
 sudo: false
 install: true
@@ -45,4 +62,4 @@ deploy:
 notifications:
   email:
     recipients:
-      - hu.ziy@husky.neu.edu
+      - liu.junyu@husky.neu.edu

@@ -10,8 +10,6 @@ public class PictureStoreUtility {
 
 
     public static final String pictureLocalPath = "/var/lib/tomcat8/webapps/ROOT";
-    public static final String pictureApplicationPath = "/resources/images/";
-    public static final String pictureApplicationAbsolutePath = "/home/huziy/csye6225/dev/webapp/src/main/resources/images/";
 
 
     public static File convertFromMultipart(MultipartFile file) throws Exception {
