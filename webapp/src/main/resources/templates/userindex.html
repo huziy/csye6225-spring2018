@@ -22,7 +22,7 @@
     <div>
         <h1 th:text="${user}"></h1>
         <h6 th:text="${currentTime}"></h6>
-        <img width="200" height="200"  th:default="./images/p.jpeg"  th:src="@{${'data:image;base64,'+userProfile}}"> </img>
+        <img width="200" height="200"  th:default="../resources/images/p.jpeg"  th:src="@{${'data:image;base64,'+userProfile}}"> </img>
         <form th:action="@{/user/uploadpicture}" method="POST" enctype="multipart/form-data">
             <input  type="file" id="profilepicture" name="profilepicture" />
             <button type="submit" th:onclick="'checkFileType()'">Upload</button>
