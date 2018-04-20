@@ -1,21 +1,24 @@
-<!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
-<div th:replace="fragments/header :: header"/>
-<body>
-<div th:replace="fragments/navigation :: navigation"/>
-
-
-<!-- Page Content -->
-<div class="container">
-            <p>
-                Welcome to CSYE 6225 Spring 2018 Semester!!!
-            </p>
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8"/>
     
-</div>
-<!-- /.container -->
-
-<div th:replace="fragments/footer :: footer"/>
+    <title>Index</title>
+</head>
+<body >
+    <div >
+      
+        <h1 >Welcome!</h1>
+        <h1>latest Final Presentation</h1>
+        <form action="/user/showprofile" method="GET">
+            <input type="text" id="username" name="username" placeholder="search profile"/>
+            <button type="submit" onclick="window.location.href='/user/showprofile'">Search</button>
+        </form>
+        <button type="submit" onclick="window.location.href='/user/signin'">Sign in</button>
+        <button type="submit" onclick="window.location.href='/user/signup'">Sign up</button>
+        <p>CSYE6225</p>
+    </div>
 </body>
 </html>
-
-
